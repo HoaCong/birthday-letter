@@ -109,7 +109,7 @@ main.invitation-mode{align-items:flex-start;padding-top:28px;padding-bottom:32px
   <section class="panel" id="intro">
     <div class="kicker">Hỷ sự · Trân trọng kính mời</div>
     <h1 class="intro-title">Một lời mời<br><em>cho ngày vui trọn vẹn</em></h1>
-    <p class="intro-copy">Có một niềm vui đang chờ được sẻ chia.<br>Xin mời anh chị mở phong thư để khám phá<br>lời mời đặc biệt này.</p>
+    <p class="intro-copy" id="introCopy">Có một niềm vui đang chờ được sẻ chia.<br>Xin mời anh chị mở phong thư để khám phá<br>lời mời đặc biệt này.</p>
     <div class="envelope-stage">
       <span class="corner-flower a" aria-hidden="true">✿</span><span class="corner-flower b" aria-hidden="true">✿</span>
       <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Mở phong thư đính hôn" aria-expanded="false">
@@ -122,14 +122,14 @@ main.invitation-mode{align-items:flex-start;padding-top:28px;padding-bottom:32px
   </section>
   <article class="invitation" id="invitation" aria-live="polite" aria-labelledby="invTitle">
     <div class="topline">Trân trọng kính mời</div><div class="ring" aria-hidden="true">💍</div><h2 class="inv-title" id="invTitle">THIỆP MỜI</h2><p class="inv-subtitle">Lễ Đính Hôn</p>
-    <div class="inv-copy">Trân trọng kính mời</div><div class="guest">🌸 Vợ chồng Anh Rốt 🌸</div><div class="inv-copy">Đến tham dự lễ đính hôn của chúng em</div><div class="ornament">♥ ───── ✦ ───── ♥</div>
+    <div class="inv-copy" id="recipientGreeting">Trân trọng kính mời</div><div class="guest" id="recipientName">🌸 Vợ chồng Anh Rốt 🌸</div><div class="inv-copy" id="recipientInvite">Đến tham dự lễ đính hôn của chúng mình</div><div class="ornament">♥ ───── ✦ ───── ♥</div>
     <div class="names"><div class="namebox"><small>CÔ DÂU</small><strong>Nguyễn Thị Cẩm Vi</strong></div><div class="namebox"><small>CHÚ RỂ</small><strong>Lê Công Hòa</strong></div></div>
     <div class="details">
       <div class="detail"><div class="ico" aria-hidden="true">🗓️</div><div><b>Thời gian</b><br>10h30, Chủ nhật, ngày 25/10/2026 <span style="color:#997d69">(Dương lịch)</span><br>16/9/2026 <span style="color:#997d69">(Âm lịch)</span></div></div>
       <div class="detail"><div class="ico" aria-hidden="true">📍</div><div><b>Địa điểm</b><br>Số 16 Long Hồ, phường Kim Long, Thành phố Huế</div></div>
     </div>
     <a class="map-link" id="mapBtn" href="https://www.google.com/maps/search/?api=1&amp;query=S%E1%BB%91%2016%20Long%20H%E1%BB%93%2C%20ph%C6%B0%E1%BB%9Dng%20Kim%20Long%2C%20Th%C3%A0nh%20ph%E1%BB%91%20Hu%E1%BA%BF" target="_blank" rel="noopener noreferrer">📍 Xem đường đi đến địa điểm</a>
-    <p class="note">Sự hiện diện của anh chị là niềm vui và là vinh hạnh đối với gia đình chúng em trong ngày trọng đại này.<br>Rất mong anh chị thu xếp thời gian đến chung vui cùng gia đình và chúng em.</p>
+    <p class="note" id="recipientNote">Sự hiện diện của anh chị là niềm vui và là vinh hạnh đối với gia đình chúng mình trong ngày trọng đại này.<br>Rất mong anh chị dành chút thời gian quý báu để chung vui cùng chúng em.</p>
     <div class="ornament">♥ ───── ✦ ───── ♥</div><div class="inv-copy">Trân trọng kính mời!</div><p class="signoff">Cẩm Vi & Công Hòa</p><div class="bottom-mark" aria-hidden="true">💍　❤️　💍</div>
     <button class="replay-link" id="replayBtn" type="button">↻ Mở lại phong thư</button>
   </article>
@@ -141,6 +141,35 @@ const invitation=document.getElementById('invitation');
 const hint=document.getElementById('hint');
 const main=document.getElementById('main');
 const replayBtn=document.getElementById('replayBtn');
+
+// Danh sách người nhận: tham số URL thiepmoi sẽ quyết định cách xưng hô.
+const guestMap={
+  anhrot:{name:'Vợ chồng Anh Rốt',type:'family',invite:'Đến tham dự lễ đính hôn của chúng em',note:'Sự hiện diện của anh chị là niềm vui và là vinh hạnh đối với gia đình chúng em trong ngày trọng đại này.<br>Rất mong anh chị dành chút thời gian quý báu để chung vui cùng chúng em.'},
+  chithao:{name:'Vợ chồng Chị Thảo',type:'family',invite:'Đến tham dự lễ đính hôn của chúng em',note:'Sự hiện diện của anh chị là niềm vui và là vinh hạnh đối với gia đình chúng em trong ngày trọng đại này.<br>Rất mong anh chị dành chút thời gian quý báu để chung vui cùng chúng em.'},
+  pduy:{name:'Bạn Phước Duy',type:'friend'},
+  bao:{name:'Bạn Bảo',type:'friend'},
+  nam:{name:'Bạn Nam',type:'friend'},
+  tduy:{name:'Bạn Thế Duy',type:'friend'},
+  hai:{name:'Bạn Hải',type:'friend'},
+  nhung:{name:'Bạn Nhung',type:'friend'},
+  meo:{name:'Bạn Mèo',type:'friend'},
+  huong:{name:'Bạn Hương',type:'friend'},
+  thuy:{name:'Bạn Thuỷ',type:'friend'},
+  my:{name:'Bạn Mỹ',type:'friend'},
+  tuyen:{name:'Bạn Tuyền',type:'friend'}
+};
+function renderRecipient(){
+  const params=new URLSearchParams(window.location.search);
+  const key=(params.get('thiepmoi')||'anhrot').trim().toLocaleLowerCase('vi');
+  const guest=guestMap[key]||guestMap.anhrot;
+  const isFamily=guest.type!=='friend';
+  document.getElementById('introCopy').innerHTML='Có một niềm vui đang chờ được sẻ chia.<br>Xin mời '+(isFamily?'anh chị':'bạn')+' mở phong thư để khám phá<br>lời mời đặc biệt này.';
+  document.getElementById('recipientGreeting').textContent='Trân trọng kính mời';
+  document.getElementById('recipientName').textContent='🌸 '+guest.name+' 🌸';
+  document.getElementById('recipientInvite').textContent=guest.invite||(isFamily?'Đến tham dự lễ đính hôn của chúng em':'Đến tham dự lễ đính hôn của chúng mình');
+  document.getElementById('recipientNote').innerHTML=guest.note||(isFamily?'Sự hiện diện của anh chị là niềm vui và là vinh hạnh đối với gia đình chúng em trong ngày trọng đại này.<br>Rất mong anh chị dành chút thời gian quý báu để chung vui cùng chúng em.':'Sự hiện diện của bạn là niềm vui và là vinh hạnh đối với gia đình chúng mình trong ngày trọng đại này.<br>Rất mong bạn dành chút thời gian quý báu để chung vui cùng chúng mình.');
+}
+renderRecipient();
 let opened=false;
 let confettiTimers=[];
 let petalTimers=[];
